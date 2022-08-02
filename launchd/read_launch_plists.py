@@ -26,10 +26,7 @@ def LoadPlist(filename):
     except IOError as io_error:
         print(io_error, err_data)
 
-    if proc.returncode == 0:
-        return plistlib.readPlistFromString(out_data)
-
-    return None
+    return plistlib.readPlistFromString(out_data) if proc.returncode == 0 else None
 
 
 def GetPlistValue(plist, value):
@@ -70,9 +67,7 @@ def GetComment(plist, comments):
     except KeyError:
         return None
 
-    if label in comments:
-        return comments[label]
-    return None
+    return comments[label] if label in comments else None
 
 
 def main():
@@ -88,8 +83,7 @@ def main():
 
     for ptype in PLIST_TYPES:
         for filename in glob.glob(PLIST_LOCATION % ptype):
-            prop = LoadPlist(filename)
-            if prop:
+            if prop := LoadPlist(filename):
                 print("%s,%s,%s,%s,%s" % (
                     filename,
                     GetPlistValue(prop, "Label"),
@@ -97,7 +91,7 @@ def main():
                     GetPlistValue(prop, "RunAtLoad"),
                     '"%s"' % GetComment(prop, comments)))
             else:
-                print("Could not load %s" % filename)
+                print(f"Could not load {filename}")
 
 
 if __name__ == "__main__":
